@@ -1,3 +1,4 @@
+# Courtesy of https://stackoverflow.com/a/16589622
 def full_stack():
     import traceback, sys
     exc = sys.exc_info()[0]
