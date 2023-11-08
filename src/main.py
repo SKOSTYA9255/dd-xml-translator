@@ -116,7 +116,6 @@ def main():
             initialSetup(pathOptions)
 
         fm.setup(pathOptions) # Creates folders/files using the FileManager
-        print(pathOptions.xmlInput)
         interface(pathOptions)
     except Exception as error:
         print(full_stack())
