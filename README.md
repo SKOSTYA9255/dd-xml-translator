@@ -1,2 +1,2 @@
 # dd-xml-extractor
-XML Extractor for Darkest Dungeon
+XML Extractor/Inserter for Darkest Dungeon
