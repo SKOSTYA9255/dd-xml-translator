@@ -1,5 +1,6 @@
 from pathlib import Path
 import os
+import re
 
 
 def ManageFolders(pathOptions):
@@ -26,17 +27,21 @@ def ManageTXT(pathOptions):
         open(pathOptions.InTXTPath, "w", encoding="utf-8")
         open(pathOptions.OutTXTPath, "w", encoding="utf-8")
 
-def findFile(dir, type):
+def findFile(dir, type, exclude):
     file_list = sorted(Path(dir).glob(f"*.{type}"))
 
     if(len(file_list) < 1):
-        return False
+        raise IndexError()
     else:
-        return file_list[0] # Taking the first file found after sorting
+        for file in file_list:
+            if(re.match(exclude, os.path.basename(file)) is None): # A valid XML file was found 
+                return file
+        raise FileNotFoundError() # No valid XML file was found
+
 
 def setXMLFiles(pathOptions, file, output_prefix):
     pathOptions.xmlInput = os.path.basename(file)
-    pathOptions.xmlOutput = f"{output_prefix}_{os.path.basename(file)}"
+    pathOptions.xmlOutput = f"{output_prefix}{os.path.basename(file)}"
     pathOptions.InXMLPath = pathOptions.FilesFolderPath.joinpath(pathOptions.xmlInput)
     pathOptions.OutXMLPath = pathOptions.FilesFolderPath.joinpath(pathOptions.xmlOutput)
 

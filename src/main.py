@@ -14,19 +14,27 @@ APP_TITLE = "DD XML Extractor and Inserter"
 
 
 def initialSetup(pathOptions):
+    file_prefix = "OUT_"
     fm.ManageFolders(pathOptions)
     printHeader()
     while True:
         print(f"Please put the XML file you want extracted into the folder '{pathOptions.FilesFolder}'")
         input("When done, press Enter to continue.")
 
-        file = fm.findFile(pathOptions.FilesFolderPath, "xml")
-        if(file is False):
+        try:
+            file = fm.findFile(pathOptions.FilesFolderPath, "xml", file_prefix)
+        except IndexError:
             printLines("─", 40)
             print(f"\nError: Could not find an XML file in '{pathOptions.FilesFolderPath}'\n")
-        else:
-            fm.setXMLFiles(pathOptions, file, "OUT")
-            return
+            continue
+        except FileNotFoundError:
+            printLines("─", 40)
+            print(f"\nError: Could not find a valid XML file in '{pathOptions.FilesFolderPath}'")
+            print(f"Any XML file with the prefix {file_prefix} is not valid for extraction!\n")
+            continue
+
+        fm.setXMLFiles(pathOptions, file, file_prefix)
+        return
 
 def interface(pathOptions):
     while True:
@@ -79,7 +87,7 @@ def main():
         ctypes.windll.kernel32.SetConsoleTitleW(APP_TITLE)
         FilesFolder = "io"
         txtInput = "Translated Input.txt"
-        txtOutput = "Extracted Outout.txt"
+        txtOutput = "Extracted Output.txt"
         xmlInput = "" # Get info from user
         xmlOutput = "" # Get info from user
 
