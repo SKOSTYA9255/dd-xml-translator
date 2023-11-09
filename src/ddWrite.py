@@ -3,13 +3,28 @@ import re
 
 
 def writeFile(pathOptions):
+    """Writes data from the translated input file to the specified output XML file. 
+    Uses regex to insert input text between "[ and "]]" e.g. [text goes here]].
+
+    Args:
+        pathOptions (dataclass): A dataclass (struct) containing all paths and path names used in the program.
+
+    """
     xml_input = open(pathOptions.InXMLPath, "r", encoding="utf-8").read().splitlines() # splitlines() breaks each line after the newline (and includes it in the line)
-    xml_output = open(pathOptions.OutXMLPath, "r", encoding="utf-8").read().splitlines()
     txt_input = open(pathOptions.InTXTPath, "r", encoding="utf-8").read().splitlines() 
-    txt_output = open(pathOptions.OutTXTPath, "r", encoding="utf-8").read().splitlines() 
 
 
-    def backslashToString(match_obj):
+    def backslashToString(match_obj: object)->str:
+        """Simple toString function to prevent re.sub from interpretating backslashes in the replacement string as escape characters.\n
+        The argument "match_obj" is a requirement for this function, although it's unused.
+        To see why this is the case, view the docs: https://docs.python.org/3/library/re.html#re.sub
+
+        Args:
+            match_obj (object): The match object as returned by re.
+
+        Returns:
+            str: The string from the translated input file (casted to string to be safe)
+        """
         return str(txt_input[i])
 
     i = 0

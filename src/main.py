@@ -14,6 +14,12 @@ APP_TITLE = "DD XML Extractor and Inserter"
 
 
 def initialSetup(pathOptions):
+    """Generates required files/folders on startup and asks the user to insert
+    an input XML in the program's working directory (as specified in pathOptions)
+
+    Args:
+        pathOptions (dataclass): A dataclass (struct) containing all paths and path names used in the program.
+    """
     file_prefix = "OUT_"
     fm.ManageFolders(pathOptions)
     printHeader()
