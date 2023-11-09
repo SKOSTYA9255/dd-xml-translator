@@ -14,24 +14,23 @@ def writeFile(pathOptions):
 
     i = 0
     for line in xml_input:
-        if(i < len(txt_input)):
-            match_obj = re.search(r"([^\[]+?)(?=]{2})", line) # Search for all text in string
+        match_obj = re.search(r"([^\[]+?)(?=]{2})", line) # Search for all text in string
 
-            if match_obj is not None: # Error checking to make sure the regex value is not empty
-                match_obj_sub = re.sub(r"([^\[]+?)(?=]{2})", backslashToString, line)
-                # print(match_obj_sub) # For testing purposes
+        if match_obj is not None: # Error checking to make sure the regex value is not empty
+            match_obj_sub = re.sub(r"([^\[]+?)(?=]{2})", backslashToString, line)
+            # print(match_obj_sub) # For testing purposes
 
-                if(i == len(txt_input)):
-                    open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub)
-                else:
-                    open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub+"\n")
-            #print(f"{i} + {i < len(txt_input)}") # For testing purposes
-                i += 1
+            if(i == len(txt_input)):
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub)
             else:
-                if(i == len(txt_input)):
-                    open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line)
-                else:
-                    open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line+"\n")
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub+"\n")
+        #print(f"{i} + {i < len(txt_input)}") # For testing purposes
+            i += 1
+        else:
+            if(i > len(txt_input)):
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line)
+            else:
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line+"\n")
     # Compare lines in txt_input vs text_output and send warning if they differ
 
 
