@@ -1,5 +1,12 @@
 # Courtesy of https://stackoverflow.com/a/16589622
-def full_stack():
+def full_stack()->str:
+    """Prints the full stack trace when called. 
+    The stacktraces is very similar to the stacktraces produced by Python on uncaught exceptions.
+    Should be used in a catch statement.
+
+    Returns:
+        str: List of strings (ready for printing) showing the full stack trace
+    """
     import traceback, sys
     exc = sys.exc_info()[0]
     stack = traceback.extract_stack()[:-1]  # last one would be full_stack()
