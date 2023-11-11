@@ -15,11 +15,13 @@ def readFile(pathOptions, config):
         Args:
             line (str) The current line of the file.
         """
+        
         match_obj = re.search(r"([^\[]+?)(?=]{2})", line) # Find text between "[ and "]]" e.g. [text goes here]]
         if match_obj is not None: # Found a valid string to extract
             open(pathOptions.OutTXTPath, "a", encoding="utf-8").write(str(match_obj.group(0))+"\n")
+            pathOptions.extractedXML.append(line)
 
-    lang = config.LanguageTag
+    lang = config.ExtractLanguageTag
 
     if(lang == ""): # Extract whole document
         for line in pathOptions.sanitizedXML:

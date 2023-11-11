@@ -1,3 +1,5 @@
+import sys
+
 from ddWrite import writeFile
 from ddExtract import readFile
 import ddFileManager as fm
@@ -47,15 +49,30 @@ def initialSetup(pathOptions):
         pathOptions.sanitizedXML = fm.sanitizeXML(pathOptions.InXMLPath)
         return
 
-def setLanguageTag(config):
-    printHeader("Set XML Language Tag")
+def setLanguageTag(config, type: int):
+    # 1 = Extract
+    # 2 = Write
+    
+    lang_tag = ""
+    name = ""
+    if(type == 1):
+        name = "Extracting"
+    elif(type == 2):
+        name = "Writing"
+    else:
+        raise Exception(f"Invalid type for language tag. Expected range int: 1,2. Got: {type} of {type.__class__}")
+    printHeader(f"Set {name} XML Language Tag")
     print(" INFO:")
     print("   An XML language tag could be \"english\".")
     print("   Please check your XML file for the specific language tag you wish to use.")
     print("   To reset language tag, simply press enter without typing anything.")
     printLines("─", 10)
     tag = input(" Set XML language tag to: ")
-    config.LanguageTag = str(tag)
+    
+    if(type == 1):
+        config.ExtractLanguageTag = str(tag)
+    elif(type == 2):
+        config.WriteLanguageTag = str(tag)
 
 def interface(pathOptions, config):
     while True:
@@ -68,11 +85,18 @@ def interface(pathOptions, config):
         print("\n")
         printLines("─", 20)
         print(" Toolbox\n")
-        print(" [l] Set XML language tag to limit extraction scope.")
-        if(config.LanguageTag == ""):
-            print("     Language tag not set. The entire file will be extracted. This is NOT recommended!")            
+        print(" [1] Set extracting XML language tag.")
+        if(config.ExtractLanguageTag == ""):
+            print("     Extracting language tag not set. The entire file will be extracted. This is NOT recommended!")            
         else:
-            print(f"     Language tag is currently: {config.LanguageTag}")
+            print(f"     Extracting language tag is currently: {config.ExtractLanguageTag}")
+        print("\n [2] Set writing XML language tag")
+        if(config.WriteLanguageTag == ""):
+            print("     Writing language tag not set. The entire file will be replaced. This is NOT recommended!")            
+        elif(config.WriteLanguageTag == "" and config.ExtractLanguageTag != ""):
+            print("     Warning: Cannot write the XML file! Either set a writing language tag or reset the extracting language tag.")   
+        else:
+            print(f"     Writing language tag is currently: {config.WriteLanguageTag}")
         
         # Exit
         print("\n")
@@ -90,8 +114,10 @@ def interface(pathOptions, config):
             print("  Writing files...")
             writeFile(pathOptions, config)
             print("  Done!")
-        elif choice == "l":
-            setLanguageTag(config)
+        elif choice == "1":
+            setLanguageTag(config, 1)
+        elif choice == "2":
+            setLanguageTag(config, 2)
         elif choice == "x":
             sys.exit()
         else:
