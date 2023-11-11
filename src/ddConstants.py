@@ -1,3 +1,7 @@
+# Util
+GITHUB_LINK = "https://github.com/TheRealMorgenfrue/dd-xml-extractor"
+DEV_CREDIT = "Morgenfrue"
+
 APP_TITLE = "DD XML Extractor and Inserter"
 
 FILE_PREFIX = "OUT_" # Prefix for the output XML file name

@@ -1,11 +1,12 @@
 import re
 
-substitutions = 0
-txt_input = []
+substitutions = 0 # Tracks number of substitutions made. Essential for backslashToString
+txt_input = [] # List containing lines from the translated txt file
 
 def writeFile(pathOptions, config):
     """Writes data from the translated input file to the specified output XML file. 
     Uses regex to insert input text between "[ and "]]" e.g. [text goes here]].
+    The replacement scope is defined by XML language tags.
 
     Args:
         pathOptions (dataclass): A dataclass (struct) containing all paths and path names used in the program.
@@ -22,7 +23,7 @@ def writeFile(pathOptions, config):
     else: # Extract only within XML language tag belonging to "lang"
         is_substituting = False
         is_skipping = False
-        i = 0
+        
         for line in pathOptions.sanitizedXML:
             if(re.search(r"(<language id=\")(?!>)", line) is not None): # Found a <language id= tag. (In <language id="english"> find <language id=)
                 if(re.search(f"({lang})(?=\">)", line) is not None): # The language in that tag is what we're looking for
@@ -36,57 +37,63 @@ def writeFile(pathOptions, config):
                 if(re.search(r"(<\/language)(?=\>)", line) is not None):
                     is_skipping = False
                     Write(pathOptions, line) # Write </language> associated with the writing language tag
-                    continue
+                    continue # Prevents duplication of </language>
                 else:  
-                    continue
+                    continue # Line is still within writing language tag from the original XML file
             
             if(is_substituting):
-                while(len(extracted_xml) >= 1): # Keep writing till the Translated Input is empty (measured number of lines produced by the extraction procedure)
+                while(len(extracted_xml) >= 1): # Keep writing until all lines in Translated Input have been used (measured by number of lines produced by the extraction procedure)
                     Write(pathOptions, extracted_xml[0], is_substituting)
                 is_substituting = False
-                is_skipping = True
-            else: # Writes everything except what's contained in the writing language tag scope (including the <language and </language) 
+                is_skipping = True # Finished substituting. Start skipping lines within writing language tag from the original XML file
+            else: # Writes everything except what's contained in the writing language tag scope (including the <language and </language>) 
                 Write(pathOptions, line)
 
-def Write(pathOptions, line, is_substituting: bool=False):
+def Write(pathOptions, line: str, is_substituting: bool=False):
     """Helper function for writeFile. 
-    Takes a string from the txt input line and replaces 
-    the equivalent string in the output XML file with this string.
+    If substituting, takes a string from the txt input line, replaces parts of it with a string, 
+    and writes it to the output XML file. Otherwise, write the line unchanged.
+
+    Args:
+        pathOptions (dataclass): A dataclass (struct) containing all paths and path names used in the program.
+        line (str): The XML line to write or substitute parts of with a string.
+        is_substituting (bool): Defines whether the line should be substituted or not. Defaults to False.
+
     """
-    print(f"{len(pathOptions.extractedXML)} | {is_substituting} | {line}")
+    # print(f"{len(pathOptions.extractedXML)} | {is_substituting} | {line}") For testing purposes
     if(is_substituting):
-        if(re.search(r"([^\[]+?)(?=]{2})", line) is not None): # <entry id to substitute within writing language tag scope. (Found a string between "[" and "]]" to substitute)
-            
+        if(re.search(r"([^\[]+?)(?=]{2})", line) is not None): # <entry id to substitute within writing language tag scope. (Found a string between "[" and "]]" to substitute)   
             match_obj_sub = re.sub(r"([^\[]+?)(?=]{2})", backslashToString, line) # Substitute found string with the equivalent, translated string
             open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub + "\n")
-            pathOptions.extractedXML.pop(0)
-            
-            
-            #print(f"{len(pathOptions.extractedXML)}: {line}")
+            pathOptions.extractedXML.pop(0) # Remove the string that has just been substituted.
         else: # Writes whitespace only
             open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line + "\n")
     else: # Writes everything that isn't an <entry id to substitute or whitespace
-        #print(f"{line}")
         open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line + "\n")
 
 
 def WriteAll(pathOptions):
+    """Writes from the entire input XML to the output XML, 
+    substituting using the Translated Input txt file
+
+    Args:
+        pathOptions (dataclass): A dataclass (struct) containing all paths and path names used in the program.
+    """
     i = 0
     for line in pathOptions.sanitizedXML:
-        if(re.search(r"([^\[]+?)(?=]{2})", line) is not None):
-            match_obj_sub = re.sub(r"([^\[]+?)(?=]{2})", backslashToString, line)
+        if(re.search(r"([^\[]+?)(?=]{2})", line) is not None): 
+            match_obj_sub = re.sub(r"([^\[]+?)(?=]{2})", backslashToString, line) # Substitute this line 
 
             if(i == len(txt_input)):
-                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub)
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub) # End of document. Do not add newline
             else:
-                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub+"\n")
-        #print(f"{i} + {i < len(txt_input)}") # For testing purposes
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(match_obj_sub+"\n") # Not end of document. Add newline
             i += 1
         else:
             if(i > len(txt_input)):
-                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line)
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line) # End of document. Do not add newline
             else:
-                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line+"\n")
+                open(pathOptions.OutXMLPath, "a", encoding="utf-8").write(line+"\n") # Not end of document. Add newline
 
 def backslashToString(match_obj: object)->str:
     """Helper function for writeFile. 

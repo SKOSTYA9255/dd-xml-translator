@@ -8,18 +8,18 @@ def readFile(pathOptions, config):
         pathOptions (dataclass): A dataclass (struct) containing all paths and path names used in the program.
     """
     
-    def Extract(line):
+    def Extract(line: str):
         """Helper function for readFile. 
         Searches for and extracts a valid substring from the XML input line.
 
         Args:
-            line (str) The current line of the file.
+            line (str): The current line of the file.
         """
         
         match_obj = re.search(r"([^\[]+?)(?=]{2})", line) # Find text between "[ and "]]" e.g. [text goes here]]
         if match_obj is not None: # Found a valid string to extract
             open(pathOptions.OutTXTPath, "a", encoding="utf-8").write(str(match_obj.group(0))+"\n")
-            pathOptions.extractedXML.append(line)
+            pathOptions.extractedXML.append(line) # Add line to an internal list containing all extracted lines. Used for extractor reference in ddWrite.
 
     lang = config.ExtractLanguageTag
 
@@ -32,7 +32,7 @@ def readFile(pathOptions, config):
 
         for line in pathOptions.sanitizedXML:
             if(is_extracting): 
-                if(re.search(r"(<\/language)(?=\>)", line) is not None): # Found </language> while extracting. Thus, end of language section to extract is eached
+                if(re.search(r"(<\/language)(?=\>)", line) is not None): # Found </language> while extracting. Thus, end of language section to extract is reached
                     return
                 else:
                     Extract(line)
