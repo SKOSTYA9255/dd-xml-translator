@@ -14,7 +14,7 @@ def ManageFolders(pathOptions):
         Exception: When the folder name is illegal. Currently only checks "". 
     """
     if(pathOptions.FilesFolder == ""): # TODO: Use regex pattern for better resilience.
-        raise Exception(f"Illegal name. Must not be {pathOptions.FilesFolder}")
+        raise Exception(f"Illegal name. Must not be '{pathOptions.FilesFolder}'")
     else:
         if(not pathOptions.FilesFolderPath.exists()):
             pathOptions.FilesFolderPath.mkdir()
@@ -104,3 +104,45 @@ def setup(pathOptions):
     ManageFolders(pathOptions)
     ManageTXT(pathOptions)
     ManageXML(pathOptions)
+
+def sanitizeXML(xmlPath: str)->list:
+    xml_input = open(xmlPath, "r", encoding="utf-8").read().splitlines() # splitlines() breaks each line after the newline
+    sanitized_list = []
+    prev_lines = []
+
+    begin_entry_found = False
+    end_entry_found = False # This one's added for clarity but not technically used
+
+    for line in xml_input:
+        if(re.search(r"(<entry)", line) is not None and re.search(r"(<\/entry>)", line) is not None): # This line has <entry and </entry
+            sanitized_list.append(line)
+            continue
+
+        if(re.search(r"(<entry)", line) is not None): # This line has <entry
+            begin_entry_found = True
+            if(re.search(r"(<\/entry>)", line) is None): # This line does not have </entry
+                end_entry_found = False
+                prev_lines.append(line)
+                continue
+
+        if(begin_entry_found): # /entry was found in a previous iteration (not necessarily the last one)
+            if(re.search(r"(<\/entry>)", line) is not None): # This line has </entry
+                end_entry_found = True
+                temp_line = ""
+
+                for prev in prev_lines:
+                    temp_line += prev
+
+                temp_line += line
+                sanitized_list.append(temp_line)
+                prev_lines.clear()
+                begin_entry_found, end_entry_found = False, False
+            else: # This line does not have </entry
+                prev_lines.append(line)
+        elif(re.search(r"(<\/entry>)", line) is None): # This line is of no concern for sanitizing. Line is e.g. <?xml version="1.0" encoding="UTF-8"?>
+            sanitized_list.append(line)
+
+    #for line in sanitized_list:
+    #    open("SANIT.xml", "a", encoding="utf-8").write(line+"\n")
+    
+    return sanitized_list
