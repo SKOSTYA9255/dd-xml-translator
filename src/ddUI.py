@@ -6,16 +6,27 @@ import ddFileManager as fm
 import ddConstants as ddc
 
 
-def printHeader(title):
-    padding = 4
-    title_lenght = len(title)
-    repeat_times = padding + title_lenght
+def printHeader(title: str, full: bool=False):
+    padding = 60
 
-    print("\n")
-    printLines("=", repeat_times)
-    print(f" | {title} |")
-    printLines("=", repeat_times)
-    print("\n")
+    if(full):
+        print("\n")
+        print("┌" + "".ljust(padding, "─") + "┐")
+        print("│ " + f"{title}".ljust(padding-1, " ") + "│")
+        print("│ " + f"{ddc.GITHUB_LINK}".ljust(padding-1, " ") + "│")
+        print("│ " + f"Written by {ddc.DEV_CREDIT}".ljust(padding-1, " ") + "│")
+        print("└" + "".ljust(padding, "─") + "┘")
+        print("\n")
+    else:
+        padding = 2
+        title_lenght = len(title)
+        padding += title_lenght
+
+        print("\n")
+        print("┌" + "".ljust(padding, "─") + "┐")
+        print("│ " + f"{title}".ljust(padding-1, " ") + "│")
+        print("└" + "".ljust(padding, "─") + "┘")
+        print("\n")
 
 def printLines(type: str, count: int):
     print(" "+f"{type}"*count)
@@ -76,7 +87,7 @@ def setLanguageTag(config, type: int):
 
 def interface(pathOptions, config):
     while True:
-        printHeader(ddc.APP_TITLE)
+        printHeader(ddc.APP_TITLE, True)
         # Main options
         print(f" [r] Read from XML file '{pathOptions.xmlInput}' to '{pathOptions.txtOutput}'")
         print(f" [w] Write to XML file '{pathOptions.xmlOutput}' from txt file '{pathOptions.txtInput}'")
