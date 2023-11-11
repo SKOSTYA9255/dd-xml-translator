@@ -25,11 +25,12 @@ class DDPaths:
     InXMLPath: str
     OutXMLPath: str
     sanitizedXML: list
+    extractedXML: list
 
 @dataclass
 class Config:
-    LanguageTag: str
-
+    ExtractLanguageTag: str
+    WriteLanguageTag: str
 
 def main():
     try:
@@ -54,10 +55,11 @@ def main():
             OutTXTPath,
             InXMLPath,
             OutXMLPath,
+            [],
             []
         )
 
-        config = Config("schinese")
+        config = Config("schinese", "english")
 
         if(pathOptions.xmlInput == "" or pathOptions.xmlOutput == ""):
             initialSetup(pathOptions)
