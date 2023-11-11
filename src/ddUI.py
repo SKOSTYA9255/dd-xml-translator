@@ -91,10 +91,10 @@ def interface(pathOptions, config):
         else:
             print(f"     Extracting language tag is currently: {config.ExtractLanguageTag}")
         print("\n [2] Set writing XML language tag")
-        if(config.WriteLanguageTag == ""):
-            print("     Writing language tag not set. The entire file will be replaced. This is NOT recommended!")            
-        elif(config.WriteLanguageTag == "" and config.ExtractLanguageTag != ""):
-            print("     Warning: Cannot write the XML file! Either set a writing language tag or reset the extracting language tag.")   
+        if(config.ExtractLanguageTag != "" and config.WriteLanguageTag == ""):
+            print("     Warning: Cannot write to the XML file! Either set a writing language tag or reset the extracting language tag.")            
+        elif(config.WriteLanguageTag == ""):
+             print("     Writing language tag not set. The entire file will be replaced. This is NOT recommended!")
         else:
             print(f"     Writing language tag is currently: {config.WriteLanguageTag}")
         
