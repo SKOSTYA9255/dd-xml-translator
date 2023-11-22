@@ -112,8 +112,17 @@ def sanitizeXML(xmlPath: str)->list:
 
     begin_entry_found = False
     end_entry_found = False # This one's added for clarity but not technically used
+    prev_line_is_begin_language = False
 
     for line in xml_input:
+        if(re.search(r"(<language id=\")(?!>)", line) is not None):
+            prev_line_is_begin_language = True
+        elif(prev_line_is_begin_language and re.search(r"(<\/language)(?=\>)", line) is not None):
+            sanitized_list.append("")
+            prev_line_is_begin_language = False
+        else:
+            prev_line_is_begin_language = False
+
         if(re.search(r"(<entry)", line) is not None and re.search(r"(<\/entry>)", line) is not None): # This line has <entry and </entry
             sanitized_list.append(line)
             continue
@@ -142,6 +151,7 @@ def sanitizeXML(xmlPath: str)->list:
         elif(re.search(r"(<\/entry>)", line) is None): # This line is of no concern for sanitizing. Line is e.g. <?xml version="1.0" encoding="UTF-8"?>
             sanitized_list.append(line)
 
+    # For testing purposes
     #for line in sanitized_list:
     #    open("SANIT.xml", "a", encoding="utf-8").write(line+"\n")
     

@@ -25,7 +25,7 @@ def writeFile(pathOptions, config):
         is_skipping = False
         
         for line in pathOptions.sanitizedXML:
-            if(re.search(r"(<language id=\")(?!>)", line) is not None): # Found a <language id= tag. (In <language id="english"> find <language id=)
+            if(re.search(r"(<language id=\")(?!>)", line) is not None): # Found a <language id= tag.
                 if(re.search(f"({lang})(?=\">)", line) is not None): # The language in that tag is what we're looking for
                     is_substituting = True
                     Write(pathOptions, line) # Writes the <language associated with the writing language tag
