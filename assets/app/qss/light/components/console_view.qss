@@ -1,0 +1,8 @@
+#console {
+    background-color: rgba(249, 249, 249, 0.774);
+}
+
+#Label {
+    font: 20px 'Microsoft YaHei Light';
+    background-color: transparent;
+}

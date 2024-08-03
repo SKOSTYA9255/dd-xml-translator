@@ -1,0 +1,21 @@
+#view, #settingsSubInterface {
+    background-color: transparent;
+    /* background-color: rgb(249, 249, 249); */
+}
+
+QScrollArea {
+    border: none;
+    background-color: transparent;
+    /* background-color: rgb(249, 249, 249); */
+}
+
+#titleLabel {
+    font: 33px 'Microsoft YaHei Light';
+    background-color: transparent;
+}
+
+
+QStackedWidget, StackedWidget {
+    border: none;
+    background-color: transparent;
+}

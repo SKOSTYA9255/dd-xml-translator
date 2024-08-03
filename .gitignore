@@ -1,6 +1,10 @@
-# Files related to XML Extractor
-io/
-xml_templates/
+# DDLH
+data/
+logs/
+configs/
+
+# VS Code
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -11,6 +15,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+app.*/
 .Python
 build/
 develop-eggs/
