@@ -1,0 +1,236 @@
+Templates provide a uniform way of creating and validating config files
+as well as constructing GUI elements matching the contents of the created config files.
+
+Template options may be split into two categories:
+    1. Creation/Validation.
+    2. GUI elements.
+Below is an explanation of each option in each category.
+
+
+Explanation of terms:
+    setting = A key which influences some decision in the program.
+              Equivalent to a line in the config file or the GUI element created from said config.
+              For instance, the setting for the line 'loglevel = "DEBUG"' in a config is 'loglevel'.
+
+    option  = A child key of a setting in the Template.
+              For instance, the setting "loglevel" contains a child key "default"
+              (specifying the default value for "loglevel").
+
+
+┌─────────────────────────┐
+│   Creation/Validation   │
+└─────────────────────────┘
+* NOTE: some options listed here are also used for GUI elements. These are marked with (GUI).
+
+
+- default   (GUI)
+    The default value for a setting.
+
+    *********************
+    Applicable settings:
+    - All
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_disable    (GUI)
+    The value which disables this setting.
+    This value is used in validation if it is the smallest of all other values (e.g. default, min)
+
+    *********************
+    For further information, please see the corresponding ui_disable option under GUI elements.
+
+───────────────────────────────────────────────────────────────────────────
+
+- min   (GUI)
+    The minimum value for a setting.
+
+    *********************
+    Applicable settings:
+    - Any number ranges, e.g. slider or spinbox     // TODO: Add float support
+
+───────────────────────────────────────────────────────────────────────────
+
+- max
+    The maximum value for a setting.
+
+    *********************
+    Applicable settings:
+    - Any number ranges, e.g. slider or spinbox     // TODO: Add float support
+
+───────────────────────────────────────────────────────────────────────────
+
+- type    (Optional)
+    The Python type for the value of a setting. For instance, 3 has type 'int'.
+
+    *********************
+    Applicable settings:
+    - All   (Technically. However, types are also inferred from other options)
+    // TODO: Streamline type inferring
+    // TODO: Add all methods of type inferring here
+
+───────────────────────────────────────────────────────────────────────────
+
+- values    (GUI)
+    Possible values for a setting.
+
+    *********************
+    Applicable settings:
+    - Combobox
+
+───────────────────────────────────────────────────────────────────────────
+
+- validators    (Optional)
+    A list of functions used to validate the value of this setting
+    (in addition to default Pydantic validation).
+
+    *********************
+    Applicable settings:
+    - All
+
+
+┌──────────────────┐
+│   GUI elements   │
+└──────────────────┘
+
+- ui_exclude
+    Exclude this setting from the GUI.
+    No GUI element will be created for this setting.
+
+    *********************
+    Applicable settings:
+    - All
+
+    *********************
+    Possible values:
+    - Boolean
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_desc   (Optional)
+    Description of this setting in the GUI.
+
+    *********************
+    Applicable settings:
+    - All
+
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_disable
+    The value which disables this setting.
+    Please ensure that the backend using this setting respects this value - otherwise it has no effect.
+    In the GUI, a button for disabling this setting is provided.
+
+    *********************
+    Applicable settings:
+    - Slider
+    - Spinbox
+    - Switch
+    //TODO: check if other settings are needed
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_group
+    Designate a group ID which all options with this ID belongs to.
+    This makes various actions possible for settings, e.g. they can be visually grouped in the GUI.
+
+    A setting in a ui_group can have the ui_group_parent option present.
+    This makes the setting act as the parent of the group.
+    For more info about the group parent, please refer to ui_group_parent.
+
+    *********************
+    Applicable settings:
+    - All
+
+    *********************
+    Possible values:
+    - Any       (if this setting belongs to a single group)
+    - Any, Any  (if this setting belongs to multiple groups)
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_group_parent
+    Designate the parent setting of a group.
+    Only one setting in each group can be designated parent
+    (If more than one exist, the first found is used).
+
+    *********************
+    Applicable settings:
+    - All
+
+    *********************
+    Possible values:
+     * NOTE: all values can be combined in a list unless a value states otherwise.
+     * NOTE: all values are specified in the file "template_enums.py"
+
+    - disable_children  (Applies to: All)
+        This setting disables all child settings in its group when it changes state.
+        The group parent has a button to enable/disable input for the entire group.
+            All settings in the group will use their disable value if it is present.
+            If no ui_disable value is present for a particular child it will only show as disabled
+            in the GUI, but it's line in the config file remains unchanged.
+            Thus, if a setting has no disable value, using this configuration will not actually disable it.
+
+    - nested_children   (Applies to: All)
+        This setting's children will be nested under it.
+        Though the specifics of the nesting depend on the GUI config generator used.
+
+    - sync_children     (Applies to: Switch)
+        This setting's children will change their value according to their parent.
+
+    - desync_children   (Applies to: Switch)
+        This setting's children will change their value opposite of their parent.
+
+    - desync_true_children    (Applies to: Switch)
+        This setting's children will change their value opposite of their parent
+        (except if the parent's value is False - then the child remains unchanged)
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_invalidmsg
+    Message informing the user that they typed invalid data into this setting.
+    Only relevant on free-form input, e.g. a line edit.
+
+    *********************
+    Applicable settings:
+    - Any free-form input
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_title
+    The title of this setting.
+
+    *********************
+    Applicable settings:
+    - All
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_type
+    The widget type to use for this setting.
+
+    *********************
+    Applicable settings:
+    - All
+
+    *********************
+    Possible values:
+    TODO: Add this          // TODO: Add supported widgets here OR create dynamic widget support
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_unit   (Optional, must be singular!)
+    The unit associated with this setting, e.g. kB, day.
+
+    *********************
+    Applicable settings:
+    - All                   // TODO: Ensure units can be used on all GUI elements
+
+───────────────────────────────────────────────────────────────────────────
+
+- ui_file_filter
+    The files considered valid for selection, e.g. "XML Files (*.xml)".
+
+    *********************
+    Applicable settings:
+    - File Selection

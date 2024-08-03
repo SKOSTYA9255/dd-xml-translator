@@ -1,0 +1,4 @@
+#Label {
+    font: 20px 'Microsoft YaHei Light';
+    background-color: transparent;
+}

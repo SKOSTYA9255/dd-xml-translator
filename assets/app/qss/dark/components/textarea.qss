@@ -1,0 +1,13 @@
+#textEdit {
+    background-color: gray;
+}
+
+#textArea {
+    background-color: transparent;
+}
+
+#Label {
+    font: 20px 'Microsoft YaHei Light';
+    background-color: transparent;
+    color: white;
+}
