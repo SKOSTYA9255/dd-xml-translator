@@ -53,5 +53,14 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setAttribute(Qt.ApplicationAttribute.AA_DontCreateNativeWidgetSiblings)
 
-    w = MainWindow()
-    sys.exit(app.exec())
+    try:
+        from module.config.internal.app_args import AppArgs
+        w = MainWindow()
+        sys.exit(app.exec())
+    except Exception:
+        import traceback
+        import time
+        with open(Path(AppArgs.log_dir, "crash.txt"), "a", encoding="utf-8") as file:
+            file.write(f"Crash reported at {time.localtime()}\n")
+            file.write(traceback.format_exc())
+            file.write("\n\n")
