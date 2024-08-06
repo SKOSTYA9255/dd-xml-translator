@@ -1,4 +1,3 @@
-from math import isinf
 from typing import Iterable
 
 from app.components.settings.switch import Switch
@@ -79,7 +78,7 @@ def connectUIGroups(uiGroups: Iterable[Group]):
                                         + f"child '{child.getCardName()}' has option type '{type(child_option).__name__}'")
         # Update parent's and its children's disable status
         if not group.isNestedChild():
-            parent.notifyCard.emit("updateState")
+            parent.notifyCard.emit(("updateState", None))
 
 def inferType(setting: str, options: dict, config_name: str) -> UITypes | None:
     """ Infer card type from various options in the template """
@@ -88,7 +87,8 @@ def inferType(setting: str, options: dict, config_name: str) -> UITypes | None:
         cardType = options["ui_type"]
     elif "ui_invalidmsg" in options:
         cardType = UITypes.LINE_EDIT  # TODO: ui_invalidmsg should apply to all free-form input
-    elif "max" in options and isinf(options["max"]):
+    elif ("max" in options and options["max"] is None
+          or "max" not in options and "min" in options):
         cardType = UITypes.SPINBOX
     elif isinstance(options["default"], bool):
         cardType = UITypes.SWITCH

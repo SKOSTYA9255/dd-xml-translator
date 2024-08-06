@@ -52,6 +52,7 @@ Explanation of terms:
 
 - max
     The maximum value for a setting.
+    If max is omitted or None, there is no limit.
 
     *********************
     Applicable settings:

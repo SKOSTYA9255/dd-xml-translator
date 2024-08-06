@@ -1,4 +1,3 @@
-from math import isinf
 from pydantic import Field
 from typing import Any, Self, Union
 
@@ -147,7 +146,7 @@ class TemplateParser():
                 min_values.append(field_default)
 
         field_min = min(min_values, default=None)
-        field_max = options["max"] if "max" in options and not isinf(options["max"]) else None
+        field_max = options["max"] if "max" in options else None
 
         field = {setting: (field_type, Field(default=field_default, ge=field_min, le=field_max, required=True))}
         validation_info.addField(section_name, field)
