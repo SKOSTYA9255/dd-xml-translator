@@ -4,7 +4,7 @@ from module.config.internal.app_args import AppArgs
 from module.config.internal.names import ModuleNames
 from module.config.tools.config_tools import retrieveDictValue
 from module.config.templates.abstract_template import BaseTemplate
-from module.config.templates.template_enums import UITypes
+from module.config.templates.template_enums import UITypes, UIGroups
 from module.config.validators import validateLoglevel, validateTheme, validatePath, validateLangTag
 from module.logger import logger
 
@@ -63,6 +63,14 @@ class AppTemplate(BaseTemplate):
                     "validators": [
                         validateLoglevel
                     ]
+                },
+                "messageSize": {
+                    "ui_title": "Limit the size of (potentially) large info messages to reduce spam",
+                    "ui_desc": "A value of -1 means no limit",
+                    "ui_unit": "line",
+                    "default": 15,
+                    "min": -1,
+                    "max": 30
                 }
             },
             "Appearance": {
@@ -133,6 +141,48 @@ class AppTemplate(BaseTemplate):
                     "validators": [
                         validateLangTag
                     ]
+                },
+                "debugXML": {
+                    "ui_title": "Enable debug mode",
+                    "ui_desc": "Useful for debugging the XML engine",
+                    "default": False
+                },
+                "colorCodeSep": {
+                    "ui_title": "Exclude color codes from extraction",
+                    "ui_desc": "Due to possible loss of text during translation, some color codes might still be included",
+                    "default": True,
+                    "ui_disable": False,
+                    "ui_group_parent": [UIGroups.NESTED_CHILDREN, UIGroups.DISABLE_CHILDREN],
+                    "ui_group": "colorCode"
+                },
+                "colorCodeSepLength": {
+                    "ui_title": "Minimum text length for color code exclusion",
+                    "ui_desc": "Any text with a length greater or equal to this will have color codes excluded",
+                    "ui_unit": "character",
+                    "default": 4,
+                    "ui_disable": 0,
+                    "min": 1,
+                    "max": 20,
+                    "ui_group": "colorCode"
+                },
+                "colorCodeDelim": {
+                    "ui_title": "Character to delimit text between color codes",
+                    "ui_desc": "Use a character not usually used in language. Otherwise, unexpected results might occur",
+                    "default": "|",
+                    "ui_group": "colorCode"
+                },
+                "colorCodeDelimSize": {
+                    "ui_title": "Delimiter repeats",
+                    "ui_desc": "Make the delimiter more likely to withstand translation. Without the delimiter, the translated text will be missing color codes",
+                    "default": 4,
+                    "min": 1,
+                    "max": None,
+                    "ui_group": "colorCode"
+                },
+                "outFilePrefix": {
+                    "ui_title": "Add prefix to output XML file",
+                    "ui_desc": "Can make it easier to discern translated files from non-translated",
+                    "default": "TR_"
                 }
             }
         }
