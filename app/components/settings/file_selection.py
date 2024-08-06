@@ -49,6 +49,7 @@ class FileSelect(BaseSetting):
             self.disableValue = ui_disable
             self.backupValue = self.currentValue
             self.isDisabled = False
+            self.notifyDisabled = True
 
             # Set disabled status
             if self.currentValue == ui_disable:
@@ -57,13 +58,13 @@ class FileSelect(BaseSetting):
             # Add file selection to layout
             self.buttonlayout.addWidget(self.selectButton)
 
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
             signalBus.configUpdated.emit(self.configkey, (self.currentValue,))
         except Exception:
             self.deleteLater()
             raise
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         self.selectButton.clicked.connect(self.__onSelectClicked)
         self.notifySetting.connect(self.__onParentNotification)
         signalBus.updateConfigSettings.connect(self.__onUpdateConfigSettings)
@@ -76,7 +77,9 @@ class FileSelect(BaseSetting):
         type = values[0]
         value = values[1]
         if type == "disable":
+            self.notifyDisabled = False
             self.__setDisableWidget(value[0], value[1])
+            self.notifyDisabled = True
         elif type == "canGetDisabled":
             self.notifyParent.emit(("canGetDisabled", self._canGetDisabled()))
         elif type == "content":
@@ -112,11 +115,11 @@ class FileSelect(BaseSetting):
         return False
 
     def setValue(self, value: StrPath) -> None:
-        if self.currentValue != value:
+        if self.currentValue != value or self.backupValue == value:
             if self.config.setValue(self.configkey, value, self.configname):
                 self.currentValue = value
                 self.notifyParent.emit(("content", self.currentValue))
-                if value == self.disableValue:
+                if self._canGetDisabled() and value == self.disableValue and self.notifyDisabled:
                     self.notifyParent.emit(("disable", True))
 
     def resetValue(self) -> None:

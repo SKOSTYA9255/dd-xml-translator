@@ -48,6 +48,7 @@ class SpinBox_(BaseSetting):
             self.disableValue = ui_disable
             self.backupValue = self._ensureValidGUIValue(self.currentValue)
             self.isDisabled = False
+            self.notifyDisabled = True
 
             # Set disabled status
             if self.currentValue == ui_disable:
@@ -65,13 +66,13 @@ class SpinBox_(BaseSetting):
             # Add SpinBox to layout
             self.buttonlayout.addWidget(self.spinboxButton)
 
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
             signalBus.configUpdated.emit(self.configkey, (self.currentValue,))
         except Exception:
             self.deleteLater()
             raise
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         self.spinboxButton.valueChanged.connect(self.setValue)
         self.notifySetting.connect(self.__onParentNotification)
         signalBus.updateConfigSettings.connect(self._onUpdateConfigSettings)
@@ -84,7 +85,9 @@ class SpinBox_(BaseSetting):
         type = values[0]
         value = values[1]
         if type == "disable":
+            self.notifyDisabled = False
             self.__setDisableWidget(value[0], value[1])
+            self.notifyDisabled = True
         elif type == "canGetDisabled":
             self.notifyParent.emit(("canGetDisabled", self._canGetDisabled()))
 
@@ -115,11 +118,12 @@ class SpinBox_(BaseSetting):
         self.setValue(self.defaultValue)
 
     def setValue(self, value: int) -> None:
-        if self.currentValue != value:
+        if self.currentValue != value or self.backupValue == value:
             if self.config.setValue(self.configkey, value, self.configname):
                 self.currentValue = value
                 if value == self.disableValue:
-                    self.notifyParent.emit(("disable", True))
+                    if self._canGetDisabled() and  self.notifyDisabled:
+                        self.notifyParent.emit(("disable", True))
                 else:
                     # Do not update GUI with disable values
                     self.spinboxButton.setValue(value)

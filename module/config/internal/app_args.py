@@ -58,11 +58,8 @@ class AppArgs():
 
     # Template Settings
     config_units = {
-        "second": "seconds",
-        "retry" : "retries",
-        "tag"   : "tags",
-        "day"   : "days",
-        "kB"    : ""
+        "character": "characters",
+        "line": "lines"
     }
 
     # Configs

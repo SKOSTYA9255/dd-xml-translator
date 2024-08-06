@@ -111,7 +111,7 @@ class GenericSettingCard(SettingCard):
             self.buttonLayout = QHBoxLayout()
 
             self.__initLayout()
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
         except Exception:
             self.deleteLater()
             raise
@@ -120,7 +120,7 @@ class GenericSettingCard(SettingCard):
         self.buttonLayout.setSpacing(20)
         self.hBoxLayout.addLayout(self.buttonLayout)
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         self.disableCard.connect(self.__onDisableCard)
 
     def __onDisableCard(self, isDisabled: bool) -> None:
@@ -225,7 +225,7 @@ class ChildSettingCard(SettingCard):
             self.buttonLayout = QHBoxLayout()
 
             self.__initLayout()
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
         except Exception:
             self.deleteLater()
             raise
@@ -234,8 +234,8 @@ class ChildSettingCard(SettingCard):
         self.buttonLayout.setSpacing(20)
         self.hBoxLayout.addLayout(self.buttonLayout)
 
-    def __connectpyqtSignalToSlot(self) -> None:
-        self.disableCard.connect((lambda: self.setDisableAll(not self.isDisabled)))
+    def __connectSignalToSlot(self) -> None:
+        self.disableCard.connect(self.setDisableAll)
 
     def __onParentNotified(self, values: tuple[str, Any]) -> None:
         type = values[0]
@@ -281,7 +281,7 @@ class ChildSettingCard(SettingCard):
         self.buttonLayout.addSpacing(65) # Ensure it aligns with expand setting card
 
         if widget.isDisabled:
-            self.disableCard.emit()
+            self.disableCard.emit(True)
 
     def paintEvent(self, e) -> None:
         pass

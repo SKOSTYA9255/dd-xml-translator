@@ -13,13 +13,14 @@ from app.components.link_card import LinkCardView
 
 from module.config.internal.app_args import AppArgs
 from module.config.internal.names import ModuleNames
+from module.config.app_config import AppConfig
 
 
 class BannerWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.showBanner = True
-        self.isBackgroundActive = False
+        self.isBackgroundActive = bool(AppConfig().getValue("appBackground"))
+        self.showBanner = not self.isBackgroundActive or int(AppConfig().getValue("backgroundOpacity")) == 0
 
         self.vBoxLayout = QVBoxLayout(self)
         self.galleryLabel = QLabel(f'{ModuleNames.app_name}\nv{AppArgs.app_version}', self)
@@ -58,9 +59,9 @@ class BannerWidget(QWidget):
             self.tr(''),
             AppArgs.link_github,
         )
-        self.__connectpyqtSignalToSlot()
+        self.__connectSignalToSlot()
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         signalBus.configUpdated.connect(self.__onAppConfigUpdated)
 
     def __onAppConfigUpdated(self, configkey: str, valuePack: tuple[Any,]) -> None:

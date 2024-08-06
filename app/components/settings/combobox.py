@@ -47,6 +47,7 @@ class ComboBox_(BaseSetting):
             self.disableValue = ui_disable
             self.backupValue = self.currentValue
             self.isDisabled = False
+            self.notifyDisabled = True
 
             # Set disabled status
             if self.currentValue == ui_disable:
@@ -63,13 +64,13 @@ class ComboBox_(BaseSetting):
             self.comboBox.setCurrentText(self.currentValue)
             self.buttonlayout.addWidget(self.comboBox)
 
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
             signalBus.configUpdated.emit(self.configkey, (self.currentValue,))
         except Exception:
             self.deleteLater()
             raise
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         self.comboBox.currentIndexChanged.connect(lambda index: self.setValue(self.comboBox.itemData(index)))
         self.notifySetting.connect(self.__onParentNotification)
         signalBus.updateConfigSettings.connect(self.__onUpdateConfigSettings)
@@ -82,7 +83,9 @@ class ComboBox_(BaseSetting):
         type = values[0]
         value = values[1]
         if type == "disable":
+            self.notifyDisabled = False
             self.__setDisableWidget(value[0], value[1])
+            self.notifyDisabled = True
         elif type == "canGetDisabled":
             self.notifyParent.emit(("canGetDisabled", self._canGetDisabled()))
 
@@ -108,9 +111,9 @@ class ComboBox_(BaseSetting):
         self.setValue(self.defaultValue)
 
     def setValue(self, value) -> None:
-        if self.currentValue != value:
+        if self.currentValue != value or self.backupValue == value:
             if self.config.setValue(self.configkey, value, self.configname):
                 self.currentValue = value
                 self.comboBox.setCurrentText(value)
-                if value == self.disableValue:
+                if self._canGetDisabled() and value == self.disableValue and self.notifyDisabled:
                     self.notifyParent.emit(("disable", True))

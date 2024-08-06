@@ -46,6 +46,7 @@ class Switch(BaseSetting):
             self.disableValue = self.__convertBool(ui_disable) if ui_disable is not None else None
             self.backupValue = self.currentValue
             self.isDisabled = False
+            self.notifyDisabled = True
 
             # Set disabled status
             if self.currentValue == ui_disable:
@@ -58,13 +59,13 @@ class Switch(BaseSetting):
             # Add Switch to layout
             self.buttonlayout.addWidget(self.switchButton)
 
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
             signalBus.configUpdated.emit(self.configkey, (self.currentValue,))
         except Exception:
             self.deleteLater()
             raise
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         self.switchButton.checkedChanged.connect(self.setValue)
         self.notifySetting.connect(self.__onParentNotification)
         signalBus.updateConfigSettings.connect(self._onUpdateConfigSettings)
@@ -77,7 +78,9 @@ class Switch(BaseSetting):
         type = values[0]
         value = values[1]
         if type == "disable":
+            self.notifyDisabled = False
             self.__setDisableWidget(value[0], value[1])
+            self.notifyDisabled = True
         elif type == "canGetDisabled":
             self.notifyParent.emit(("canGetDisabled", self._canGetDisabled()))
 
@@ -124,12 +127,13 @@ class Switch(BaseSetting):
         if self.configkey == "defaultSketchOption":
             value = self.__convertBool(value, reverse=True)
 
-        if self.currentValue != value:
+        if self.currentValue != value or self.backupValue == value:
             if self.config.setValue(self.configkey, value, self.configname):
                 self.currentValue = value
                 self.switchButton.setText(self.tr('On') if value else self.tr('Off'))
                 self.switchButton.setChecked(value)
-                self.notifyParent.emit(("disable", value))
+                if self._canGetDisabled() and self.disableValue == value and self.notifyDisabled:
+                    self.notifyParent.emit(("disable", value))
 
     def resetValue(self) -> None:
         self.setValue(self.defaultValue)

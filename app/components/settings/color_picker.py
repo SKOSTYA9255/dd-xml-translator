@@ -1,6 +1,6 @@
 from qfluentwidgets import ColorPickerButton
 from PyQt6.QtWidgets import QWidget
-from PyQt6.QtGui import QColor, QHideEvent
+from PyQt6.QtGui import QColor
 
 from typing import Any, Optional
 
@@ -43,17 +43,18 @@ class ColorPicker(BaseSetting):
             self.defaultValue = QColor(config.getValue(configkey, self.configname, use_internal_config=True))
             self.disableValue = None # This setting cannot be disabled
             self.colorbutton = ColorPickerButton(self.currentValue, self.tr("application color"), self) # Lowercase string is intended
+            self.notifyDisabled = True
 
             # Add colorpicker to layout
             self.buttonlayout.addWidget(self.colorbutton)
 
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
             signalBus.configUpdated.emit(self.configkey, (self.currentValue,))
         except Exception:
             self.deleteLater()
             raise
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         self.colorbutton.colorChanged.connect(self.setValue)
         self.notifySetting.connect(self.__onParentNotification)
         signalBus.updateConfigSettings.connect(self.__onUpdateConfigSettings)
@@ -66,7 +67,9 @@ class ColorPicker(BaseSetting):
         type = values[0]
         value = values[1]
         if type == "disable":
+            self.notifyDisabled = False
             self.__setDisableWidget(value[0], value[1])
+            self.notifyDisabled = True
         elif type == "canGetDisabled":
             self.notifyParent.emit(("canGetDisabled", self._canGetDisabled()))
 
@@ -92,11 +95,11 @@ class ColorPicker(BaseSetting):
         if not isinstance(color, QColor):
             color = QColor(color)
 
-        if self.currentValue != color:
+        if self.currentValue != color or self.backupValue == color:
             if self.config.setValue(self.configkey, color.name(), self.configname):
                 self.currentValue = color
                 self.colorbutton.setColor(color)
-                if color == self.disableValue:
+                if self._canGetDisabled() and color == self.disableValue and self.notifyDisabled:
                     self.notifyParent.emit(("disable", True))
 
     def resetValue(self) -> None:
