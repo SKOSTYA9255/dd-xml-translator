@@ -19,14 +19,20 @@ from app.components.infobar_test import InfoBar, InfoBarPosition
 
 from module.config.internal.app_args import AppArgs
 from module.config.internal.names import ModuleNames
+from module.config.app_config import AppConfig
+from module.logger import logger
 
 
 class MainWindow(MSFluentWindow):
+    _logger = logger
+    _app_config = AppConfig()
+
     def __init__(self):
         super().__init__()
-        self.background = None # type: QPixmap | None
-        self.backgroundOpacity = 0.0
-        self.backgroundBlurRadius = 0.0
+        val = self._app_config.getValue("appBackground")
+        self.background = QPixmap(val) if val else None # type: QPixmap | None
+        self.backgroundOpacity = self._app_config.getValue("backgroundOpacity", 0.0)
+        self.backgroundBlurRadius = self._app_config.getValue("backgroundBlur", 0.0)
         self.errorLog = []
 
         self.setMicaEffectEnabled(False)
@@ -34,11 +40,7 @@ class MainWindow(MSFluentWindow):
 
         try:
             self.__initWindow()
-            self.__connectpyqtSignalToSlot()
-            # Modules imported here to make sure the splash screen is loaded before anything else
-            from module.logger import logger
-            self._logger = logger
-
+            self.__connectSignalToSlot()
             try:
                 from app.home_interface import HomeInterface
                 self.homeInterface = HomeInterface(self)
@@ -114,7 +116,7 @@ class MainWindow(MSFluentWindow):
         self.show()
         QApplication.processEvents()
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         signalBus.configUpdated.connect(self.__onAppConfigUpdated)
         signalBus.configValidationError.connect(lambda configname, title, content: self.__onConfigValidationFailed(title, content))
         signalBus.configStateChange.connect(self.__onConfigStateChanged)
