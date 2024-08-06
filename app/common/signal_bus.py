@@ -1,7 +1,7 @@
-from PyQt6.QtCore import QObject, pyqtSignal, QCoreApplication
+from PyQt6.QtCore import QObject, pyqtSignal
 
 
-class signalBus(QObject):
+class SignalBus(QObject):
     """ pyqtSignal bus """
     # Config
     configStateChange = pyqtSignal(bool, str, str) # success/failure, title, content # Whenever a config changes state
@@ -10,10 +10,9 @@ class signalBus(QObject):
     doSaveConfig = pyqtSignal(str) # config_name
 
     # GUI-related
-    xml_process_exception = pyqtSignal(str, str) # msg, traceback # Something went wrong during processing
+    xmlProcessException = pyqtSignal(str, str, str) # errorType, msg, traceback # Something went wrong during processing
+    xmlValidationError = pyqtSignal(str, str, str) # errorType, title, content# A validation error occured in the XML
+    xmlPreviewInvalid = pyqtSignal(bool, bool) # isValid, showErrors
     updateConfigSettings = pyqtSignal(str, tuple) # configkey, tuple[value]
 
-    appShutdown = QCoreApplication.aboutToQuit
-
-
-signalBus = signalBus()
+signalBus = SignalBus()
