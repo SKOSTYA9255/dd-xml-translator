@@ -56,6 +56,7 @@ class Slider_(BaseSetting):
             self.disableValue = ui_disable
             self.backupValue = self._ensureValidGUIValue(self.currentValue)
             self.isDisabled = False
+            self.notifyDisabled = True
 
             # Set disabled status
             if self.currentValue == ui_disable:
@@ -77,13 +78,13 @@ class Slider_(BaseSetting):
             self.buttonlayout.addWidget(self.slider)
             self.buttonlayout.addSpacing(-10)
 
-            self.__connectpyqtSignalToSlot()
+            self.__connectSignalToSlot()
             signalBus.configUpdated.emit(self.configkey, (self.currentValue,))
         except Exception:
             self.deleteLater()
             raise
 
-    def __connectpyqtSignalToSlot(self) -> None:
+    def __connectSignalToSlot(self) -> None:
         self.slider.valueChanged.connect(self.setValue)
         self.notifySetting.connect(self.__onParentNotification)
         signalBus.updateConfigSettings.connect(self.__onUpdateConfigSettings)
@@ -96,7 +97,9 @@ class Slider_(BaseSetting):
         type = values[0]
         value = values[1]
         if type == "disable":
+            self.notifyDisabled = False
             self.__setDisableWidget(value[0], value[1])
+            self.notifyDisabled = True
         elif type == "canGetDisabled":
             self.notifyParent.emit(("canGetDisabled", self._canGetDisabled()))
 
@@ -124,7 +127,7 @@ class Slider_(BaseSetting):
                 value = self.disableValue
             else:
                 value = self.backupValue
-            if self.disableValue is not None and saveValue:
+            if self._canGetDisabled() and saveValue:
                 self.setValue(value)
 
     def _ensureValidGUIValue(self, value: int) -> int:
@@ -141,11 +144,12 @@ class Slider_(BaseSetting):
         self.setValue(self.defaultValue)
 
     def setValue(self, value: int) -> None:
-        if self.currentValue != value:
+        if self.currentValue != value or self.backupValue == value:
             if self.config.setValue(self.configkey, value, self.configname):
                 self.currentValue = value
                 if value == self.disableValue:
-                    self.notifyParent.emit(("disable", True))
+                    if self._canGetDisabled() and self.notifyDisabled:
+                        self.notifyParent.emit(("disable", True))
                 else:
                     # Do not update GUI with disable values
                     self.slider.setValue(value)
