@@ -7,13 +7,13 @@
 </h1>
 
 ## Introduction
-DDLH is an app that aims to make it easier to provide localization for Darkest Dungeon mods using XML files.
+DDLH is an app that aims to make it easier to provide localization for Darkest Dungeon mods.
 
 Currently, the translation part is done manually by inserting the text into your favorite translator and putting the translated text back into the app.
 
 ## Features
 - Translate to/from all supported languages
-- Automatically create a XML localization file for any of the supported languages
+- Automatically create an XML localization file for any of the supported languages
 
 ### Currently supported languages
 - chinese
