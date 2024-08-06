@@ -13,7 +13,7 @@ from module.config.internal.app_args import AppArgs
 from module.config.tools.ini_file_parser import IniFileParser
 from module.exceptions import IniParseError, InvalidMasterKeyError, MissingFieldError
 from module.logger import logger
-from module.tools.types.general import Model, StrPath
+from module.tools.types.general import Model, StrPath, NestedDict
 from module.tools.utilities import formatValidationError
 
 _logger_ = logger
@@ -89,7 +89,7 @@ def _generateTOMLconfig(config: dict, dstPath: StrPath, comments: Any) -> None:
     for section, keys in config.items():
         table = tomlkit.table()
         for i, key in enumerate(keys):
-            if comments is not None:
+            if comments:
                 if hasattr(comments, key):
                     prevWasComment = True
                     if i != 0: # Do not make newline right after section
@@ -341,7 +341,7 @@ def insertDictValue(input: dict, key: str, value: Any, parent_key: Optional[str]
 
 
 def loadConfig(config_name: str, config_path: StrPath, validator: Callable[[Mapping], dict[str, Any]],
-                internal_config: Optional[dict[str, Any]]=None, writeBackup: bool=True,
+                internal_config: Optional[dict[str, Any]]=None, doWriteConfig: bool=True,
                 retries: int=1) -> tuple[dict[str, Any] | None, bool]:
     """Read and validate the config file residing at the supplied config path.
 
@@ -403,7 +403,7 @@ def loadConfig(config_name: str, config_path: StrPath, validator: Callable[[Mapp
         isError, isRecoverable = True, True
         _logger_.warn(f"{config_name}: Could not validate '{filename}'")
         _logger_.debug(formatValidationError(err))
-        if writeBackup:
+        if doWriteConfig:
             backupConfig(config_path)
             writeConfig(internal_config, config_path)
     except MissingFieldError as err:
@@ -412,26 +412,27 @@ def loadConfig(config_name: str, config_path: StrPath, validator: Callable[[Mapp
         for item in err.args[0]:
             err_msg += f"  {item}\n"
         _logger_.warn(err_msg)
-        if writeBackup:
-            backupConfig(config_path)
-            writeConfig(internal_config, config_path)
+        _logger_.info(f"{config_name}: Repairing config")
+        if doWriteConfig:
+            repairedConfig = upgradeConfig(raw_config, internal_config)
+            writeConfig(repairedConfig, config_path)
     except (InvalidMasterKeyError, AssertionError) as err:
         isError, isRecoverable = True, True
         logger.warn(f"{config_name}: {err.args[0]}")
-        if writeBackup:
+        if doWriteConfig:
             backupConfig(config_path)
             writeConfig(internal_config, config_path)
     except (tomlkit.exceptions.ParseError, IniParseError) as err:
         isError, isRecoverable = True, True
         _logger_.warn(f"{config_name}: Failed to parse '{filename}':\n"
                       + f"  {err.args[0]}\n")
-        if writeBackup:
+        if doWriteConfig:
             backupConfig(config_path)
             writeConfig(internal_config, config_path)
     except FileNotFoundError:
         isError, isRecoverable = True, True
         _logger_.info(f"{config_name}: Creating '{filename}'")
-        if writeBackup:
+        if doWriteConfig:
             writeConfig(internal_config, config_path)
     except Exception:
         isError, isRecoverable = True, False
@@ -439,14 +440,14 @@ def loadConfig(config_name: str, config_path: StrPath, validator: Callable[[Mapp
                        + traceback.format_exc(limit=AppArgs.traceback_limit))
     finally:
         if isError:
-            if writeBackup and retries > 0 and isRecoverable:
+            if doWriteConfig and retries > 0 and isRecoverable:
                 _logger_.info(f"{config_name}: Reloading '{filename}'")
                 config, failure = loadConfig(
                     config_name=config_name,
                     config_path=config_path,
                     validator=validator,
                     internal_config=internal_config,
-                    writeBackup=writeBackup,
+                    doWriteConfig=doWriteConfig,
                     retries=retries-1
                 )
             else:
@@ -507,3 +508,15 @@ def validateValue(config_name: str, config: dict, validator: Callable[[dict], di
                        + traceback.format_exc(limit=AppArgs.traceback_limit))
     finally:
         return isError, isValid
+
+
+def upgradeConfig(loadedConfig: NestedDict, internalConfig: NestedDict) -> NestedDict:
+    newConfig = {}
+    for section_name, section in internalConfig.items():
+        newConfig |= {section_name: {}}
+        for setting, options in section.items():
+            if section_name in loadedConfig and setting in loadedConfig[section_name]:
+                 newConfig[section_name] |= {setting: loadedConfig[section_name][setting]}
+            else:
+                 newConfig[section_name] |= {setting: options}
+    return newConfig
