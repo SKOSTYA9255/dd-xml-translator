@@ -121,3 +121,31 @@ def getDictNestingLevel(input: dict, stopAt: int) -> int:
                 return nestingLevel
         else:
             stack.pop()
+
+
+def formatListForDisplay(input: list[str], displayItems: int=15, join_string: str="\n") -> str:
+    """Format arbitrary length lists for screen (or log) display.
+
+    Parameters
+    ----------
+    input : list[str]
+        List to format
+
+    displayItems : int, optional
+        How many list items to display before truncating, by default 15
+
+    joinLineString : str, optional
+        String used to join() strings in the list, by default "\\n"
+
+    Returns
+    -------
+    list[str]
+        The formatted list
+    """
+    inputSize = len(input)
+    doTruncate = displayItems != -1 and inputSize > displayItems + 1
+    silent = displayItems == 0
+    if silent: join_string = ""
+
+    truncatedMsg = "" if silent else f"\n{join_string}(not showing {inputSize-displayItems} entries)" if doTruncate else ""
+    return f"{join_string.join(input[0:displayItems] if doTruncate else input)}{truncatedMsg}"
