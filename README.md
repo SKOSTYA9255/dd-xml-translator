@@ -7,20 +7,20 @@
 </h1>
 
 ## Introduction
-DDLH is an app that aims to make it easier to provide localization for Darkest Dungeon mods.
+dd-xml-translator is an fork of app that aims to make it easier to provide localization for Darkest Dungeon mods.
 
-Currently, the translation part is done manually by inserting the text into your favorite translator and putting the translated text back into the app.
+~Currently, the translation part is done manually by inserting the text into your favorite translator and putting the translated text back into the app.~
+Currently, the translation works only from chinese to english, but it`s automatical
 
 ## Features
 - Translate to/from all supported languages
 - Automatically create an XML localization file for any of the supported languages
 
 ### Currently supported languages
-- chinese
-- english
+- chinese to english
 
 ## TODO
-- [ ] Automatic translation
+- [ ] Add swap languages
 - [ ] Additional supported languages
 
 ## Reference
