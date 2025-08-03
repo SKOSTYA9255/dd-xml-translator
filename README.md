@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="20%" align="center" src="https://github.com/TheRealMorgenfrue/dd-xml-extractor/blob/main/assets/logo/logo.png">
+  <img width="10%" align="center" src="https://github.com/TheRealMorgenfrue/dd-xml-extractor/blob/main/assets/logo/logo.png">
 </p>
 
 <h1 align="center">
@@ -10,18 +10,26 @@
 dd-xml-translator is an fork of app that aims to make it easier to provide localization for Darkest Dungeon mods.
 
 ~Currently, the translation part is done manually by inserting the text into your favorite translator and putting the translated text back into the app.~
-Currently, the translation works only from chinese to english, but it`s automatical
+
+Currently, the translation works only from chinese to english, but it`s automatical.
 
 ## Features
 - Translate to/from all supported languages
 - Automatically create an XML localization file for any of the supported languages
 
+## Notes
+- You need to run docker container on localhost:5000 with [LibreTranslate](https://github.com/LibreTranslate/LibreTranslate) on it
+- To run app use `python app.py` in project folder
+
 ### Currently supported languages
-- chinese to english
+- Chinese to English
 
 ## TODO
-- [ ] Add swap languages
+- [ ] Add changing translation mode to manual
+- [ ] Add swapping languages
 - [ ] Additional supported languages
+- [ ] Possibility to change translator host
 
 ## Reference
 - GUI built using: [PyQt-Fluent-Widgets](https://github.com/zhiyiYo/PyQt-Fluent-Widgets)
+- Original project: [dd-xml-extractor](https://github.com/TheRealMorgenfrue/dd-xml-extractor)
