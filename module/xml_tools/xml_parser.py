@@ -212,7 +212,12 @@ class XMLParser():
 
     def formatEntryID(self, line: str, identifier: int | str) -> str:
         prep = f"{identifier}_" if identifier != "" else ""
-        return f"{prep}{re.search(Pattern.entry_id, line)[1]}"
+        search_result = re.search(Pattern.entry_id, line)
+        
+        if search_result:
+            return f"{prep}{search_result[1]}"
+        else:
+            raise ValueError("No match found in line for the given pattern.")
 
     def getSanitizedInput(self) -> list[str]:
         return self._sanitized_input

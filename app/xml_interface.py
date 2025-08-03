@@ -21,6 +21,9 @@ from module.config.tools.config_tools import retrieveDictValue
 from module.logger import logger
 from module.xml_tools import XMLParser, XMLSubstituter, XMLValidator
 
+import requests
+import json
+
 
 class XMLInterface(ScrollArea):
     _app_config = AppConfig()
@@ -182,15 +185,38 @@ class XMLInterface(ScrollArea):
                                  f"Excess translations: {translateSize-extractSize}\nThis will cause trouble for the XML engine")
 
     def _substituteXML(self) -> None:
-        translation = self.translatedTextView.text()
+        translation = []
+        to_trans = self.parser.getExtractedText()
+        for v in to_trans:
+            url = "http://localhost:5000/translate"
+            payload = {
+                "q": v,
+                "source": "zh-Hans",
+                "target": "en",
+                "format": "text",
+                "api_key": ""
+            }
+            headers = {
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(url, headers=headers, data=json.dumps(payload))
+
+            try:
+                translation.append(response.json()["translatedText"])
+            except KeyError:
+                translation.append(v) #can be changed to any message like "???" or "No translation avaliable"
+                print("WARNING: No translation available for: ", v)
+        
+
+        print([translation if translation != "" or None else "No translation!"])
         if not translation: return
-        cleanTranslation = self.cleanTranslation(translation.splitlines())
         self.substituter.substitute(
             write_lang_tag=self.writeLangTag,
             parsed_xml_lines=self.parser.getParsedLines(),
             extracted_text=self.parser.getExtractedText(),
             sanitized_xml=self.parser.getSanitizedInput(),
-            localized_text=cleanTranslation
+            localized_text=translation
         )
         previewXML = "".join(self.substituter.getPreviewXML())
         self.outputXMLPreview.setText(previewXML)
